@@ -102,7 +102,7 @@ class Blockchain(object):
         guess = f"{block_string}{proof}".encode()
         # f turns into string use .encode() to turn back to byte-like obj
         guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:3] == "000"
+        return guess_hash[:6] == "000000"
         #[:3] slices off 1st 3 char to see if it matches above specs
         # contain 3 leading zeroes
 
@@ -132,6 +132,15 @@ def full_chain():
         'chain': blockchain.chain
     }
     return jsonify(response), 200
+
+# LAST BLOCK
+
+@app.route('/lastblock', methods=['GET'])
+def last_block():
+    response = {
+        'last_block': blockchain.last_block
+    }
+    return jsonify(response), 200
 # Run the program on port 5000
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=4000, debug=True)
