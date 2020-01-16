@@ -36,7 +36,7 @@ def valid_proof(block_string, proof):
     guess = f"{block_string}{proof}".encode()
     # f turns into string use .encode() to turn back to byte-like obj
     guess_hash = hashlib.sha256(guess).hexdigest()
-    return guess_hash[:6] == "000000"
+    return guess_hash[:3] == "000"
     #[:3] slices off 1st 3 char to see if it matches above specs
     # contain 3 leading zeroes
     # pass
@@ -68,8 +68,9 @@ if __name__ == '__main__':
             break
 
         # TODO: Get the block from `data` and use it to look for a new proof
-        # new_proof = ???
-
+        last_block = data['last_block']
+        new_proof = proof_of_work(last_block)
+        
         # When found, POST it to the server {"proof": new_proof, "id": id}
         post_data = {"proof": new_proof, "id": id}
 
