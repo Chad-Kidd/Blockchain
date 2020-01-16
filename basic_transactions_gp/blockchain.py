@@ -135,19 +135,21 @@ blockchain = Blockchain()
 
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
+    #Where/how you get post data
     data = request.get_json()
+    #Validation - validate data sent
     required = ['sender', 'recipient', 'amount']
     if not all(k in data for k in required):
         response = {'message': "Missing values"}
         return jsonify(response), 400
-    # create new transaction
+    # if valid create new transaction
     index = blockchain.new_transaction(data['sender'],
                                        data['recipient'],
                                        data['amount'])
     response = {
         'message': f'Transaction will post to block {index}.'
     }
-    return jsonify(response), 201
+    return jsonify(response), 201 #create response
 
 @app.route('/mine', methods=['POST'])
 
@@ -184,7 +186,7 @@ def mine():
     if blockchain.valid_proof(last_block_string, data['proof']):
         previous_hash = blockchain.hash(blockchain.last_block)
         block = blockchain.new_block(data['proof'], previous_hash)
-
+    #MAKES SURE MINER GETS PAID
         blockchain.new_transaction(
             sender='0',
             recipient=data['id'],
