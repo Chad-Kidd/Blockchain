@@ -40,6 +40,7 @@ class Blockchain(object):
         self.chain.append(block)
         # Return the new block
         return block
+        
     def hash(self, block):
         """
         Creates a SHA-256 hash of a Block
@@ -110,6 +111,20 @@ class Blockchain(object):
         return guess_hash[:3] == "000"
         #[:3] slices off 1st 3 char to see if it matches above specs
         # contain 3 leading zeroes
+    def new_transaction(self, sender, recipient, amount):
+        """
+        Creates a new transaction to go into the next mined block
+        :param sender: <str> Name of the sender
+        :param recipient: <str>  Name of the recipient
+        :param amount <float> amount of transaction
+        :return:  <index> The index of the block that will hold the transaction
+        """
+        self.current_transactions.append({
+            'sender': sender,
+            'recipient': recipient,
+            'amount': amount
+        })
+        return self.last_block['index'] + 1
 
 # Instantiate our Node
 app = Flask(__name__)
@@ -117,6 +132,23 @@ app = Flask(__name__)
 node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the Blockchain
 blockchain = Blockchain()
+
+@app.route('/transactions/new', methods=['POST'])
+def new_transaction():
+    data = request.get_json()
+    required = ['sender', 'recipient', 'amount']
+    if not all(k in data for k in required):
+        response = {'message': "Missing values"}
+        return jsonify(response), 400
+    # create new transaction
+    index = blockchain.new_transaction(data['sender'],
+                                       data['recipient'],
+                                       data['amount'])
+    response = {
+        'message': f'Transaction will post to block {index}.'
+    }
+    return jsonify(response), 201
+
 @app.route('/mine', methods=['POST'])
 
     # MINE SPECIFICATIONS
@@ -153,6 +185,11 @@ def mine():
         previous_hash = blockchain.hash(blockchain.last_block)
         block = blockchain.new_block(data['proof'], previous_hash)
 
+        blockchain.new_transaction(
+            sender='0',
+            recipient=data['id'],
+            amount=100
+        )
         response = {
             'message': 'New Block Forged',
             'new_block': block
