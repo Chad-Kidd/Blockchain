@@ -70,23 +70,28 @@ class Blockchain(object):
         # easier to work with and understand
         # TODO: Return the hashed block string in hexadecimal format
         return hex_hash
+    
     @property
     def last_block(self):
         return self.chain[-1]
-    def proof_of_work(self, block):
-        """
-        Simple Proof of Work Algorithm
-        Stringify the block and look for a proof.
-        Loop through possibilities, checking each one against `valid_proof`
-        in an effort to find a number that is a valid proof
-        :return: A valid proof for the provided block
-        """
-        block_string = json.dumps(block)
-         #dont need .encode() anymore since being incoded in valid_proof()
-        proof = 0
-        while self.valid_proof(block_string, proof) is False:
-            proof += 1 #keep guessing number till find one that matches
-        return proof
+    #HELPER gets last_block 
+
+    # REMOVED PROOF_OF_WORK AND IMPLEMENTED IN MINER.PY
+    # def proof_of_work(self, block):
+    #     """
+    #     Simple Proof of Work Algorithm
+    #     Stringify the block and look for a proof.
+    #     Loop through possibilities, checking each one against `valid_proof`
+    #     in an effort to find a number that is a valid proof
+    #     :return: A valid proof for the provided block
+    #     """
+    #     block_string = json.dumps(block)
+    #      #dont need .encode() anymore since being incoded in valid_proof()
+    #     proof = 0
+    #     while self.valid_proof(block_string, proof) is False:
+    #         proof += 1 #keep guessing number till find one that matches
+    #     return proof
+    
     @staticmethod
     def valid_proof(block_string, proof):
         """
@@ -113,17 +118,28 @@ node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the Blockchain
 blockchain = Blockchain()
 @app.route('/mine', methods=['GET'])
+
+    # MINE SPECIFICATIONS
+    # * Modify the `mine` endpoint to instead receive and validate or reject a new proof sent by a client.
+    # * It should accept a POST
+    # * Use `data = request.get_json()` to pull the data out of the POST
+    # * Note that `request` and `requests` both exist in this project
+    # * Check that 'proof', and 'id' are present
+    # * return a 400 error using `jsonify(response)` with a 'message'
+    # * Return a message indicating success or failure.  Remember, a valid proof should fail for all senders except the first.
+
 def mine():
     # Run the proof of work algorithm to get the next proof
-    proof = blockchain.proof_of_work(blockchain.last_block)
+    # proof = blockchain.proof_of_work(blockchain.last_block)
     #blockchain.chain[-1] but we have a helper .last_block
     # Forge the new Block by adding it to the chain with the proof
     previous_hash = blockchain.hash(blockchain.last_block)
-    block = blockchain.new_block(proof, previous_hash)
+    # block = blockchain.new_block(proof, previous_hash)
     response = {
         'new_block': block
     }
     return jsonify(response), 200
+
 @app.route('/chain', methods=['GET'])
 def full_chain():
     response = {
