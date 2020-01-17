@@ -7,12 +7,22 @@ from uuid import uuid4
 from flask import Flask, jsonify, request
 import sys
 
+from flask_cors import CORS, cross_origin
+
+app = Flask(__name__)
+CORS(app, support_credentials=True)
+# there is a pip file so, run -pipenv shell- in terminal	
+# then do -pipenv install- to install all of the dependencies	
+
+
 class Blockchain(object):
     def __init__(self):
         self.chain = []
         self.current_transactions = []
         # Create the genesis block
-        self.new_block(previous_hash=1, proof=100)
+        # self.new_block(previous_hash=1, proof=100)
+        self.new_block(1,100)
+
         # hash=1 recognizes the genesis block directly
     def new_block(self, proof, previous_hash=None):
         """
@@ -21,7 +31,7 @@ class Blockchain(object):
         * Index
         * Timestamp
         * List of current transactions
-        * The proof used to mine this block
+        * The proof used to mine this
         * The hash of the previous block
         :param proof: <int> The proof given by the Proof of Work algorithm
         :param previous_hash: (Optional) <str> Hash of previous Block
@@ -186,7 +196,7 @@ def mine():
     if blockchain.valid_proof(last_block_string, data['proof']):
         previous_hash = blockchain.hash(blockchain.last_block)
         block = blockchain.new_block(data['proof'], previous_hash)
-    #MAKES SURE MINER GETS PAID
+    #MAKES SURE MINER GETS PAID for mining/finding proof
         blockchain.new_transaction(
             sender='0',
             recipient=data['id'],
@@ -204,6 +214,7 @@ def mine():
 
 # WORKING
 @app.route('/chain', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def full_chain():
     response = {
         # TODO: Return the chain and its current length
